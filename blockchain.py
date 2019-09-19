@@ -10,6 +10,10 @@ open_transactions = []
 owner = 'Edu'
 
 
+def hash_block(block):
+    return '-'.join(str([block[key] for key in block]))
+
+
 def get_last_blockchain_value():
     """ Returns the last value of the current blockchain"""
     if len(blockchain) < 1:
@@ -29,8 +33,8 @@ def add_transaction(recipient, sender=owner, amount=1.0):
 
 def mine_block():
     last_block = blockchain[-1]
-    hashed_block = ''
-    # last_block['previous_hash']
+    hashed_block = hash_block(last_block)
+
     for keys in last_block:
         value = last_block[keys]
         hashed_block = hashed_block + str(value)
@@ -46,7 +50,7 @@ def mine_block():
 def get_transaction_value():
     """Returns the input of the user (a new transaction amount) as a float"""
     tx_recipient = input('Enter the Recipeint of  the tranasaction  ')
-    tx_amount = float(input('Your Transaction Amount Please'))
+    tx_amount = float(input('Your Transaction Amount Please  '))
     return tx_recipient, tx_amount
 
 
@@ -61,32 +65,16 @@ def print_blockchain_elements():
         print('Outputing Block')
         print(block)
     else:
-        print('-' * 30)
+        print('-' * 97)
 
 
 def verify_chain():
-    # block_index = 0
-    is_valid = True
-    for block_index in range(len(blockchain)):
-        if block_index == 0:
+    for (index, block) in enumerate(blockchain):
+        if index == 0:
             continue
-        elif blockchain[block_index][0] == blockchain[block_index - 1]:
-            is_valid = True
-        else:
-            is_valid = False
-            break
-
-    # for block in blockchain:
-    #     if block_index == 0:
-    #         block_index += 1
-    #         continue
-    #     elif block[0] == blockchain[block_index - 1]:
-    #         is_valid = True
-    #     else:
-    #         is_valid = False
-    #         break
-    #     block_index += 1
-    return is_valid
+        if block['previous_hash'] == hash_block(blockchain[index - 1]):
+            return False
+    return True
 
 
 waiting_for_input = True
@@ -111,15 +99,20 @@ while waiting_for_input:
         print_blockchain_elements()
     elif user_choice == 'h':
         if len(blockchain) >= 1:
-            blockchain[0] = [2]
+            # Make sure that you dont try to hack the blcokchain of it is empty
+            blockchain[0] = {
+                'previous_hash': '',
+                'index': 0,
+                'transactions': [{'sender': 'Chris', 'recipient': 'Max', 'amount': 100}]
+            }
     elif user_choice == 'q':
         waiting_for_input = False
     else:
-        print('Input was invalid, Please pick a value ')
-    # if not verify_chain():
-    #     print_blockchain_elements()
-    #     print('Invalid Blockchain')
-    #     break
+        print('Input was invalid, Please pick a value  from the Lsit')
+    if not verify_chain():
+        print_blockchain_elements()
+        print('Invalid Blockchain')
+        break
 else:
     print('User Left')
 
