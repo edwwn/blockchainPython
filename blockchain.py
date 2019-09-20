@@ -79,13 +79,12 @@ def mine_block():
         'recipient': owner,
         'amount': MINING_REWARD
     }
-
-    open_transactions.append(reward_transaction)
-
+    copied_transactions = open_transactions[:]
+    copied_transactions.append(reward_transaction)
     block = {
         'previous_hash': hashed_block,
         'index': len(blockchain),
-        'transactions': open_transactions
+        'transactions': copied_transactions
     }
     blockchain.append(block)
     return True
@@ -121,6 +120,10 @@ def verify_chain():
     return True
 
 
+def verify_transactions():
+    return all([verify_transaction(tx) for tx in open_transactions])
+
+
 waiting_for_input = True
 
 while waiting_for_input:
@@ -129,6 +132,7 @@ while waiting_for_input:
     print("2. Mine new Block ")
     print("3. Output the Blockchain Blocks ")
     print('4: Ouput Particiants')
+    print('5: Check tranasction validity')
     print("h. Manipulate the Chain ")
     print("q: To Qiut ")
 
@@ -149,6 +153,12 @@ while waiting_for_input:
         print_blockchain_elements()
     elif user_choice == '4':
         print(participants)
+    elif user_choice == '5':
+        if verify_transactions():
+            print('All transactions are Valid')
+        else:
+            print('There are Invalid Transactions')
+
     elif user_choice == 'h':
         if len(blockchain) >= 1:
             # Make sure that you dont try to hack the blcokchain of it is empty
@@ -160,7 +170,7 @@ while waiting_for_input:
     elif user_choice == 'q':
         waiting_for_input = False
     else:
-        print('Input was invalid, Please pick a value  from the Lsit')
+        print('Input was invalid, Please pick a value  from the List')
     if not verify_chain():
         print_blockchain_elements()
         print('Invalid Blockchain')
